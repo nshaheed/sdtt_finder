@@ -105,6 +105,18 @@ def analyzeFilePath(path):
 
     return filter(lambda x: len(x) > 0, sdtts)
 
+def analyzeWork(work_title):
+    """ analyze a work in the music21 corpus.
+
+    Parameters
+    ----------
+    work_title : string
+                 The title of the work to analyze
+    """
+    parsed_work= corpus.parse(work_title)
+    print 'analyzing {0}'.format(work_title)
+    return analyzePiece(parsed_work, work_title)
+
 def printResults(works):
     """ pretty print the potential SdTTs. """
 
@@ -113,18 +125,32 @@ def printResults(works):
     print '-------------------------------'
 
     for work in works:
-        print work[0]['title']
-        for sdtt in work:
-            print '\tChord:   {0}'.format(sdtt['chord'])
-            print '\tMeasure: {0}'.format(sdtt['measure'])
-            print '\tBeat:    {0}\n'.format(sdtt['beat'])
+        if len(work) > 0:
+            print work[0]['title']
+            for sdtt in work:
+                print '\tChord:   {0}'.format(sdtt['chord'])
+                print '\tMeasure: {0}'.format(sdtt['measure'])
+                print '\tBeat:    {0}\n'.format(sdtt['beat'])
 
-# haydn = analyzeFilePath('haydn_quartets/')
-# printResults(haydn)
+def main():
+    print sys.argv
+    if len(sys.argv) != 3:
+        print >> sys.stderr, 'incorrect number of arguments, must have 2 arguments'
+        sys.exit(0)
 
-schumann = analyzeComposer('schumann')
-print schumann
-printResults(schumann)
+    results = None
 
+    if sys.argv[1] == 'composer':
+        results = analyzeComposer(sys.argv[2])
+    elif sys.argv[1] == 'filepath':
+        results = analyzeFilePath(sys.argv[2])
+    elif sys.argv[1] == 'work':
+        results = [analyzeWork(sys.argv[2])]
+    else:
+        print >> sys.stderr, 'incorrect analysis options, must be one of [composer|filepath|work].'
+        sys.exit(0)
 
-# dir, composer, work
+    printResults(results)
+
+if __name__ == "__main__":
+    main()
